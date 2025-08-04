@@ -33,9 +33,6 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.StreamingOutput
 
-/**
- * REST resource for file operations.
- */
 @Suppress("TooManyFunctions", "TooGenericExceptionCaught", "ReturnCount", "MagicNumber", "LongMethod", "MaxLineLength")
 @Path("/files")
 @Produces(MediaType.APPLICATION_JSON)
@@ -46,9 +43,6 @@ class FileResource @Inject constructor(
 ) {
     private val logger = LoggerFactory.getLogger(FileResource::class.java)
 
-    /**
-     * Upload a file
-     */
     @POST
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -62,20 +56,17 @@ class FileResource @Inject constructor(
     ): Response {
         logger.debug("File upload request from user: {}", principal.name)
 
-        // Validate that we actually got a part named "file"
         if (filePart == null) {
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(mapOf("error" to "Missing form field 'file'"))
                 .build()
         }
 
-        // Extract metadata
         val cd = filePart.contentDisposition
         val originalFilename = cd.fileName ?: return Response.status(Response.Status.BAD_REQUEST)
             .entity(mapOf("error" to "Filename is required"))
             .build()
 
-        // Determine content type safely
         val providedCt = filePart.mediaType?.toString().orEmpty()
         val detectedCt = ContentTypeDetector
             .detectContentType(originalFilename, providedCt)
@@ -132,9 +123,6 @@ class FileResource @Inject constructor(
         }
     }
 
-    /**
-     * Get all files for the current user
-     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Secured
@@ -145,8 +133,6 @@ class FileResource @Inject constructor(
         @QueryParam("pageSize") @DefaultValue("10") pageSize: Int,
         @QueryParam("search") search: String?
     ): Response {
-        // Validate paging parameters
-        if (page < 1 || pageSize < 1 || pageSize > 100) {
             logger.warn("Invalid paging parameters: page=$page, pageSize=$pageSize")
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(mapOf("error" to "Invalid paging parameters"))
@@ -156,23 +142,18 @@ class FileResource @Inject constructor(
         val userId = principal.getUserId()
         logger.info("Fetching files for userId=$userId (page=$page, size=$pageSize)")
 
-        // Normalize search: treat blank as no filter
         val searchQuery = search?.takeIf { it.isNotBlank() }
 
-        // Fetch page of files
         val files = fileService.getFilesForUser(userId, page, pageSize, searchQuery)
         logger.debug("Retrieved ${files.size} files from service")
 
-        // Fetch total count for pagination
         val totalFiles = fileService.getTotalFileCount(userId, searchQuery)
         logger.debug("Total matching files count: $totalFiles")
 
-        // Compute pagination metadata
         val totalPages = if (totalFiles > 0) (((totalFiles - 1) / pageSize) + 1).toInt() else 0
         val hasNext = page < totalPages
         val hasPrevious = page > 1
 
-        // Map domain to DTO
         val fileResponses = files.map { f ->
             FileResponse(
                 id = f.id,
@@ -186,7 +167,6 @@ class FileResource @Inject constructor(
             )
         }
 
-        // Build payload
         val payload = FileListResponse(
             files = fileResponses,
             total = totalFiles,
@@ -214,9 +194,6 @@ class FileResource @Inject constructor(
         return Response.ok().build()
     }
 
-    /**
-     * Download a file
-     */
     @GET
     @Path("/{fileId}/download")
     @Secured
@@ -228,14 +205,12 @@ class FileResource @Inject constructor(
     ): Response {
         logger.info("Download requested: fileId=$fileId, user=${principal.name}")
 
-        // Fetch metadata
         val file = fileService.getFile(fileId)
             ?: return Response.status(Response.Status.NOT_FOUND)
                 .entity(mapOf("error" to "File not found"))
                 .type(MediaType.APPLICATION_JSON)
                 .build()
 
-        // Permission check
         if (file.user?.id != principal.getUserId() && !principal.isAdmin()) {
             logger.warn("Unauthorized download: user=${principal.name}, fileOwner=${file.user?.id}")
             return Response.status(Response.Status.FORBIDDEN)
@@ -255,7 +230,6 @@ class FileResource @Inject constructor(
             "Streaming file '${file.originalName}' of size=${file.size} bytes have contentStream = $contentStream"
         )
 
-        // Build and return response
         return Response.ok(streamFile(contentStream))
             .type(file.contentType)
             // CONTENT_DISPOSITION to download
@@ -276,9 +250,6 @@ class FileResource @Inject constructor(
             }
         }
 
-    /**
-     * Get text content for a file
-     */
     @GET
     @Path("/{id}/text")
     @Produces(MediaType.APPLICATION_JSON)
@@ -295,7 +266,6 @@ class FileResource @Inject constructor(
                 .entity(ErrorResponse("File not found"))
                 .build()
 
-        // Permission check (owner or admin)
         if (file.user?.id != principal.getUserId() && !principal.isAdmin()) {
             logger.warn("Access denied: user={} tried to access file={}", principal.name, fileId)
             return Response.status(Response.Status.FORBIDDEN)
@@ -354,9 +324,6 @@ class FileResource @Inject constructor(
         }
     }
 
-    /**
-     * Get file limits and supported formats
-     */
     @GET
     @Path("/limits")
     @Produces(MediaType.APPLICATION_JSON)

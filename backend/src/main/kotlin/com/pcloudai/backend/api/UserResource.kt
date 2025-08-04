@@ -23,9 +23,6 @@ import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
-/**
- * REST API endpoints for user management
- */
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -37,9 +34,6 @@ class UserResource @Inject constructor(
 ) {
     private val logger = LoggerFactory.getLogger(UserResource::class.java)
 
-    /**
-     * Get current user profile
-     */
     @GET
     @Path("/me")
     @Secured
@@ -57,9 +51,6 @@ class UserResource @Inject constructor(
         }
     }
 
-    /**
-     * Update current user profile
-     */
     @PUT
     @Path("/me")
     @Secured
@@ -73,9 +64,6 @@ class UserResource @Inject constructor(
         return Response.ok(updated).build()
     }
 
-    /**
-     * Change user password
-     */
     @POST
     @Path("/change-password")
     @Secured
@@ -95,9 +83,6 @@ class UserResource @Inject constructor(
         }
     }
 
-    /**
-     * Get user settings
-     */
     @GET
     @Path("/settings")
     @Secured
@@ -108,9 +93,6 @@ class UserResource @Inject constructor(
         return Response.ok(settings).build()
     }
 
-    /**
-     * Update user settings
-     */
     @PUT
     @Path("/settings")
     @Secured
@@ -124,9 +106,6 @@ class UserResource @Inject constructor(
         return Response.ok(updated).build()
     }
 
-    /**
-     * Get user storage usage
-     */
     @GET
     @Path("/storage")
     @Secured

@@ -32,12 +32,8 @@ class FileService @Inject constructor(
 ) {
     private val logger = LoggerFactory.getLogger(FileService::class.java)
 
-    // Storage base path from configuration
     private val storageBasePath = configuration.fileStorage.baseDirectory
 
-    /**
-     * Upload a file for a user
-     */
     @UnitOfWork
     fun uploadFile(
         userId: Long,
@@ -50,11 +46,9 @@ class FileService @Inject constructor(
 
         val user = userRepository.findById(userId) ?: throw IllegalArgumentException("User not found")
 
-        // Sanitize & uniquify filename
         val safeName = Paths.get(originalFilename).fileName.toString().replace(" ", "_")
         val uniqueFilename = "${UUID.randomUUID()}_$safeName"
 
-        // Prepare directories and path
         val userDirectory = Paths.get(storageBasePath, userId.toString())
         Files.createDirectories(userDirectory)
         val targetPath = userDirectory.resolve(uniqueFilename)
@@ -63,11 +57,9 @@ class FileService @Inject constructor(
             Files.copy(input, targetPath, StandardCopyOption.REPLACE_EXISTING)
         }
 
-        // Verify file size
         val actualSize = Files.size(targetPath)
         logger.debug("Actual file size from disk: $actualSize bytes (reported size was: $fileSize bytes)")
 
-        // Create file metadata
         // TODO: Check file metadata non-nullable fields
         val file = File(
             name = uniqueFilename,
@@ -79,7 +71,6 @@ class FileService @Inject constructor(
             user = user
         )
 
-        // Save file metadata to database
         val savedFile = fileRepository.save(file)
 
         // Enqueue preview generation jobs if preview system is enabled (non-blocking failure)
@@ -97,25 +88,16 @@ class FileService @Inject constructor(
         return savedFile
     }
 
-    /**
-     * Get a file by ID
-     */
     @UnitOfWork(readOnly = true)
     fun getFile(fileId: Long): File? {
         return fileRepository.findById(fileId)
     }
 
-    /**
-     * Get all files for a user
-     */
     @UnitOfWork(readOnly = true)
     fun getFilesForUser(userId: Long): List<File> {
         return fileRepository.findActiveByUserId(userId)
     }
 
-    /**
-     * Get paginated files for a user with search support
-     */
     @UnitOfWork(readOnly = true)
     fun getFilesForUser(
         userId: Long,
@@ -127,29 +109,21 @@ class FileService @Inject constructor(
         return fileRepository.findActiveByUserIdPaginated(userId, offset, pageSize, search)
     }
 
-    /**
-     * Get total count of files for a user with search support
-     */
     @UnitOfWork(readOnly = true)
     fun getTotalFileCount(userId: Long, search: String? = null): Long {
         return fileRepository.countActiveByUserId(userId, search)
     }
 
-    /**
-     * Delete a file (soft delete)
-     */
     @UnitOfWork
     fun deleteFile(fileId: Long, userId: Long, isAdmin: Boolean = false): Boolean {
         logger.debug("Attempting soft delete of fileId={} by userId={}", fileId, userId)
 
-        // 1️⃣ Fetch metadata
         val file = fileRepository.findById(fileId)
         if (file == null) {
             logger.warn("File not found: fileId={}", fileId)
             return false
         }
 
-        // 2️⃣ Permission check (owner or admin)
         if (!isAdmin && file.user?.id != userId) {
             logger.warn(
                 "Permission denied: userId={} cannot delete fileId={} owned by userId={}",
@@ -160,12 +134,10 @@ class FileService @Inject constructor(
             return false
         }
 
-        // 3️⃣ Soft delete in DB
         file.markAsDeleted()
         fileRepository.update(file)
         logger.info("File marked as deleted in DB: fileId={}", fileId)
 
-        // 4️⃣ Physical deletion (outside of transaction ideally)
         val filePath = Paths.get(file.storagePath)
         try {
             if (Files.exists(filePath)) {
@@ -183,9 +155,6 @@ class FileService @Inject constructor(
         return true
     }
 
-    /**
-     * Get file content as input stream
-     */
     fun getFileContent(
         fileId: Long,
         userId: Long,
@@ -193,15 +162,12 @@ class FileService @Inject constructor(
     ): InputStream? {
         logger.debug("Fetching content stream for fileId={} by userId={}", fileId, userId)
 
-        // Load metadata
         val file = fileRepository.findById(fileId)
         if (file == null) {
             logger.warn("File not found in DB: fileId={}", fileId)
             return null
         }
 
-        //  Permission check (owner, public or admin)
-        //   Replace `0L` magic with a constant if it means “public”
         val ownerId = file.user?.id
         val PUBLIC_USER_ID = 0L
         if (!isAdmin && ownerId != userId && ownerId != PUBLIC_USER_ID) {
@@ -214,7 +180,6 @@ class FileService @Inject constructor(
             return null
         }
 
-        // Resolve path once
         val path = Paths.get(file.storagePath)
         logger.debug("Resolved storage path for fileId={}: {}", fileId, path.toAbsolutePath())
 
@@ -234,16 +199,11 @@ class FileService @Inject constructor(
         }
     }
 
-    /**
-     * Calculate storage usage for a user
-     */
     fun calculateStorageUsage(userId: Long): StorageUsageResponse {
         logger.debug("Calculating storage usage for user ID: $userId")
 
-        // Get all active files for the user
         val files = getFilesForUser(userId)
 
-        // Calculate total size of all active files
         val usedBytes = files
             .filter { it.status != FileStatus.DELETED } // Only count non-deleted files
             .sumOf { it.size }
