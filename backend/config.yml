@@ -1,0 +1,82 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+
+# Database settings
+database:
+  driverClass: org.postgresql.Driver
+  user: pcloud_user
+  password: pcloud_password
+  url: jdbc:postgresql://localhost:5432/pcloud_ai_dev
+  properties:
+    charSet: UTF-8
+    hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate.hbm2ddl.auto: update
+  maxWaitForConnection: 1s
+  validationQuery: "SELECT 1"
+  validationQueryTimeout: 3s
+  minSize: 8
+  maxSize: 32
+  checkConnectionWhileIdle: false
+  evictionInterval: 10s
+  minIdleTime: 1 minute
+
+# JWT settings
+jwt:
+  secret: "your-secret-key-change-in-production-this-should-be-very-long-and-secure"
+  expirationMinutes: 1440  # 24 hours
+
+# CORS settings
+cors:
+  allowedOrigins: "*"
+
+# Security settings
+security:
+  passwordLogRounds: 12  # Higher for production (10-12 is good)
+  passwordPepper: "your-secret-pepper-value-change-in-production"  # Optional but recommended
+
+# File storage settings
+fileStorage:
+  baseDirectory: "/Users/pragunbhutani02/Desktop/kotlin-learn/pcloud-ai/storage"
+  maxFileSize: 10485760  # 10MB
+
+# Storage limits
+storage:
+  maxStorageBytes: 16106127360  # 15GB
+  maxFileSizeBytes: 1610612736   # 1.5GB
+  supportedFormats: "*"
+
+# Preview system settings
+preview:
+  enabled: true
+  tempDirectory: "/tmp/pcloud-previews"
+  maxRetries: 3
+  retryDelayMs: 5000
+  maxTextContentBytes: 10240  # 10KB
+  redisUri: "redis://localhost:6379/0"
+  streamName: "preview-jobs"
+  consumerGroup: "preview-workers"
+  workerCount: 3  # Number of preview workers for scaling
+
+# Logging configuration
+logging:
+  level: INFO
+  loggers:
+    "org.hibernate": DEBUG
+    com.pcloudai.backend.auth: DEBUG
+    com.pcloudai.backend.api: DEBUG
+  appenders:
+    - type: console
+      threshold: ALL
+      timeZone: UTC
+      target: stdout
+    - type: file
+      currentLogFilename: /Users/pragunbhutani02/Desktop/kotlin-learn/pcloud-ai/backend/logs/application.log
+      archive: true
+      archivedLogFilenamePattern: /Users/pragunbhutani02/Desktop/kotlin-learn/pcloud-ai/backend/logs/application-%d.log.gz
+      archivedFileCount: 5
+      timeZone: UTC
