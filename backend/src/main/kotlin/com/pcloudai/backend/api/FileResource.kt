@@ -133,6 +133,7 @@ class FileResource @Inject constructor(
         @QueryParam("pageSize") @DefaultValue("10") pageSize: Int,
         @QueryParam("search") search: String?
     ): Response {
+        if (page < 1 || pageSize < 1) {
             logger.warn("Invalid paging parameters: page=$page, pageSize=$pageSize")
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(mapOf("error" to "Invalid paging parameters"))
