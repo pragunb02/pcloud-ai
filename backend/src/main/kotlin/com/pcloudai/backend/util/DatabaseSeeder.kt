@@ -3,14 +3,17 @@ package com.pcloudai.backend.util
 import com.pcloudai.backend.core.domain.Role
 import com.pcloudai.backend.core.domain.User
 import com.pcloudai.backend.core.repository.UserRepository
-import org.mindrot.jbcrypt.BCrypt
 import org.slf4j.LoggerFactory
+import javax.inject.Inject
 
 /**
  * Database seeder for creating initial users.
  */
 @Suppress("TooGenericExceptionCaught")
-open class DatabaseSeeder(private val userRepository: UserRepository) {
+open class DatabaseSeeder @Inject constructor(
+    private val passwordUtils: PasswordUtils,
+    private val userRepository: UserRepository
+) {
     private val logger = LoggerFactory.getLogger(DatabaseSeeder::class.java)
 
     /**
@@ -26,7 +29,10 @@ open class DatabaseSeeder(private val userRepository: UserRepository) {
 
                 val alice = User(
                     username = "alice",
-                    password = BCrypt.hashpw("password123", BCrypt.gensalt()),
+                    password = passwordUtils.hashPassword("password123"),
+                    firstName = "Alice",
+                    lastName = "User",
+                    email = "alice@example.com",
                     role = Role.USER
                 )
 
@@ -39,7 +45,10 @@ open class DatabaseSeeder(private val userRepository: UserRepository) {
 
                 val admin = User(
                     username = "admin",
-                    password = BCrypt.hashpw("adminPass", BCrypt.gensalt()),
+                    password = passwordUtils.hashPassword("adminPass"),
+                    firstName = "Admin",
+                    lastName = "User",
+                    email = "admin@example.com",
                     role = Role.ADMIN
                 )
 

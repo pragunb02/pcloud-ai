@@ -5,11 +5,11 @@ import com.pcloudai.backend.core.domain.User
 import com.pcloudai.backend.core.repository.UserRepository
 import com.pcloudai.backend.util.PasswordUtils
 import io.dropwizard.hibernate.UnitOfWork
-import org.mindrot.jbcrypt.BCrypt
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("ForbiddenComment")
 @Singleton
 class UserService @Inject constructor(
     private val passwordUtils: PasswordUtils,
@@ -37,15 +37,19 @@ class UserService @Inject constructor(
         }
     }
 
+    // TODO: THIS NEEDS TO BE CHECKED DEEPLY
     @UnitOfWork
     fun createUser(username: String, password: String, role: Role = Role.USER): User {
         logger.info("Creating new user: $username with role: $role")
 
-        val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
+        val hashedPassword = passwordUtils.hashPassword(password)
 
         val user = User(
             username = username,
             password = hashedPassword,
+            firstName = "",
+            lastName = "",
+            email = "",
             role = role
         )
 
