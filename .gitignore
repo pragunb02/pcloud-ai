@@ -74,3 +74,4 @@ dist/
 build/
 **/dist/
 **/build/
+storage
