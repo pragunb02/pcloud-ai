@@ -5,7 +5,7 @@ import com.pcloudai.backend.core.domain.UserSettings
 
 data class UserSettingsResponse(
     @JsonProperty("theme")
-    val theme: String, // "light", "dark", or "system"
+    val theme: String, // "light", "dark"
 
     @JsonProperty("notifications")
     val notifications: NotificationSettings

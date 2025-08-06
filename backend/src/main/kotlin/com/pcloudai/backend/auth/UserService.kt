@@ -39,17 +39,24 @@ class UserService @Inject constructor(
 
     // TODO: THIS NEEDS TO BE CHECKED DEEPLY
     @UnitOfWork
-    fun createUser(username: String, password: String, role: Role = Role.USER): User {
+    fun createUser(
+        username: String,
+        password: String,
+        role: Role = Role.USER,
+        firstName: String,
+        lastName: String
+    ): User {
         logger.info("Creating new user: $username with role: $role")
 
         val hashedPassword = passwordUtils.hashPassword(password)
 
+        // TODO: Fix this on priority P0
         val user = User(
             username = username,
             password = hashedPassword,
-            firstName = "",
-            lastName = "",
-            email = "",
+            firstName = firstName,
+            lastName = lastName,
+            email = "pb02@gmail.com",
             role = role
         )
 

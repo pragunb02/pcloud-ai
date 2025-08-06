@@ -14,5 +14,15 @@ data class RegisterRequest(
     @field:NotEmpty(message = "Password is required")
     @field:Size(min = 6, message = "Password must be at least 6 characters")
     @JsonProperty("password")
-    val password: String
+    val password: String,
+
+    @field:NotEmpty(message = "First name is required")
+    @field:Size(max = 50, message = "First name must not exceed 50 characters")
+    @JsonProperty("firstName")
+    val firstName: String,
+
+    @field:NotEmpty(message = "Last name is required")
+    @field:Size(max = 50, message = "Last name must not exceed 50 characters")
+    @JsonProperty("lastName")
+    val lastName: String
 )

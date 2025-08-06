@@ -23,7 +23,7 @@ data class UserSettings(
     val user: User,
 
     @Column(name = "theme", nullable = false)
-    var theme: String = "light", // "light", "dark", or "system"
+    var theme: String = "light", // "light", "dark"
 
     @Column(name = "email_notifications", nullable = false)
     var emailNotifications: Boolean = true,
