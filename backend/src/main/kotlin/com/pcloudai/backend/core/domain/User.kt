@@ -25,19 +25,19 @@ data class User(
     val id: Long = 0,
 
     @Column(name = "username", unique = true, nullable = false)
-    var username: String = "",
+    var username: String,
 
     @Column(name = "password", nullable = false)
-    var password: String = "",
+    var password: String,
 
     @Column(name = "first_name", nullable = false)
-    var firstName: String = "",
+    var firstName: String,
 
     @Column(name = "last_name", nullable = false)
-    var lastName: String = "",
+    var lastName: String,
 
     @Column(name = "email", unique = true, nullable = false)
-    var email: String = "",
+    var email: String,
 
     @Column(name = "bio", length = 500, nullable = true)
     var bio: String? = null,
@@ -55,4 +55,6 @@ data class User(
     var updatedAt: LocalDateTime? = null
 ) {
     fun isAdmin(): Boolean = role == Role.ADMIN
+
+    fun isUser(): Boolean = role == Role.USER
 }

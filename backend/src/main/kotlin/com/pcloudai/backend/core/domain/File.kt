@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
 import javax.persistence.JoinColumn
+import javax.persistence.Lob
 import javax.persistence.ManyToOne
 import javax.persistence.Table
 
@@ -29,19 +30,19 @@ data class File(
     val id: Long = 0,
 
     @Column(name = "name", nullable = false)
-    var name: String = "",
+    var name: String,
 
     @Column(name = "original_name", nullable = false)
-    var originalName: String = "",
+    var originalName: String,
 
     @Column(name = "content_type", nullable = false)
-    var contentType: String = "",
+    var contentType: String,
 
     @Column(name = "size", nullable = false)
     var size: Long = 0,
 
     @Column(name = "storage_path", nullable = false)
-    var storagePath: String = "",
+    var storagePath: String,
 
     @Column(name = "thumbnail_url")
     var thumbnailUrl: String? = null,
@@ -49,7 +50,8 @@ data class File(
     @Column(name = "preview_url")
     var previewUrl: String? = null,
 
-    @Column(name = "text_content", columnDefinition = "TEXT")
+    @Lob
+    @Column(name = "text_content")
     var textContent: String? = null,
 
     @Column(name = "has_text_content")
