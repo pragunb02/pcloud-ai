@@ -1,6 +1,5 @@
 package com.pcloudai.backend.api
 
-import com.pcloudai.backend.auth.Secured
 import com.pcloudai.backend.auth.UserPrincipal
 import com.pcloudai.backend.core.service.FileService
 import com.pcloudai.backend.core.service.IUserProfileService
@@ -36,7 +35,6 @@ class UserResource @Inject constructor(
 
     @GET
     @Path("/me")
-    @Secured
     @UnitOfWork
     fun getCurrentUser(@Auth principal: UserPrincipal): Response {
         logger.info("Fetching profile for userId={}", principal.getUserId())
@@ -53,7 +51,6 @@ class UserResource @Inject constructor(
 
     @PUT
     @Path("/me")
-    @Secured
     @UnitOfWork
     fun updateCurrentUser(
         @Auth principal: UserPrincipal,
@@ -66,7 +63,6 @@ class UserResource @Inject constructor(
 
     @POST
     @Path("/change-password")
-    @Secured
     @UnitOfWork
     fun changePassword(
         @Auth principal: UserPrincipal,
@@ -85,7 +81,6 @@ class UserResource @Inject constructor(
 
     @GET
     @Path("/settings")
-    @Secured
     @UnitOfWork
     fun getUserSettings(@Auth principal: UserPrincipal): Response {
         logger.info("Fetching settings for userId={}", principal.getUserId())
@@ -95,7 +90,6 @@ class UserResource @Inject constructor(
 
     @PUT
     @Path("/settings")
-    @Secured
     @UnitOfWork
     fun updateUserSettings(
         @Auth principal: UserPrincipal,
@@ -108,7 +102,6 @@ class UserResource @Inject constructor(
 
     @GET
     @Path("/storage")
-    @Secured
     @UnitOfWork
     fun getStorageUsage(@Auth principal: UserPrincipal): Response {
         logger.info("Fetching storage usage for userId={}", principal.getUserId())

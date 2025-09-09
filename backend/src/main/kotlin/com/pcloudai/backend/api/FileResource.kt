@@ -1,7 +1,6 @@
 package com.pcloudai.backend.api
 
 import com.pcloudai.backend.PCloudConfiguration
-import com.pcloudai.backend.auth.Secured
 import com.pcloudai.backend.auth.UserPrincipal
 import com.pcloudai.backend.core.service.FileService
 import com.pcloudai.backend.dto.FileListResponse
@@ -47,7 +46,6 @@ class FileResource @Inject constructor(
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    @Secured
     @UnitOfWork
     @Suppress("TooGenericExceptionCaught", "LongMethod", "ReturnCount")
     fun uploadFile(
@@ -125,7 +123,6 @@ class FileResource @Inject constructor(
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Secured
     @UnitOfWork(readOnly = true)
     fun getFiles(
         @Auth principal: UserPrincipal,
@@ -187,7 +184,6 @@ class FileResource @Inject constructor(
      */
     @OPTIONS
     @Path("/{fileId}/download")
-    @Secured
     fun optionsForFileDownload(
         @PathParam("fileId") fileId: Long
     ): Response {
@@ -197,7 +193,6 @@ class FileResource @Inject constructor(
 
     @GET
     @Path("/{fileId}/download")
-    @Secured
     @UnitOfWork(readOnly = true)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     fun downloadFile(
@@ -254,7 +249,6 @@ class FileResource @Inject constructor(
     @GET
     @Path("/{id}/text")
     @Produces(MediaType.APPLICATION_JSON)
-    @Secured
     @UnitOfWork(readOnly = true)
     fun getFileTextContent(
         @Auth principal: UserPrincipal,
@@ -288,7 +282,6 @@ class FileResource @Inject constructor(
     @DELETE
     @Path("/{fileId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Secured
     @UnitOfWork
     fun deleteFile(
         @Auth principal: UserPrincipal,

@@ -150,6 +150,13 @@
             <artifactId>jackson-module-kotlin</artifactId>
             <version>${jackson.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
