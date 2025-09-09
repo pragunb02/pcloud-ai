@@ -36,7 +36,7 @@ data class User(
     @Column(name = "last_name", nullable = false)
     var lastName: String = "",
 
-    @Column(name = "email", unique = true, nullable = true)
+    @Column(name = "email", unique = true, nullable = false)
     var email: String = "",
 
     @Column(name = "bio", length = 500, nullable = true)
@@ -55,21 +55,4 @@ data class User(
     var updatedAt: LocalDateTime? = null
 ) {
     fun isAdmin(): Boolean = role == Role.ADMIN
-
-//    override fun toString(): String {
-//        return "User(id=$id, username='$username', role=$role)"
-//    }
-//
-//    override fun equals(other: Any?): Boolean {
-//        if (this === other) return true
-//        if (javaClass != other?.javaClass) return false
-//
-//        other as User
-//
-//        return id == other.id
-//    }
-//
-//    override fun hashCode(): Int {
-//        return id.hashCode()
-//    }
 }
