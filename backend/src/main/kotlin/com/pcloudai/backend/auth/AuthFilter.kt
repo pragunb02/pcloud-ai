@@ -14,6 +14,7 @@ import kotlin.math.min
 
 /**
  * Principal class representing an authenticated user.
+ * This object is injected into resource methods marked with @Auth.
  */
 class UserPrincipal(
     private val username: String,
@@ -28,6 +29,7 @@ class UserPrincipal(
 
 /**
  * JWT authentication filter for securing endpoints.
+ * It's instantiated by Guice, which provides its dependencies via the constructor.
  */
 @Priority(Priorities.AUTHENTICATION)
 class JwtAuthFilter @Inject constructor(
@@ -35,15 +37,13 @@ class JwtAuthFilter @Inject constructor(
     @Named("jwtRealm") realm: String
 ) : AuthFilter<String, UserPrincipal>() {
 
-//    private val logger = LoggerFactory.getLogger(JwtAuthFilter::class.java)
+    // Note: We do NOT define our own logger here. We use the one inherited from AuthFilter.
 
     init {
         // Configure the superclass properties using the injected dependencies.
-        logger.debug("JwtAuthFilter.init() - Initializing JwtAuthFilter with realm: $realm")
         this.authenticator = authenticator
         this.realm = realm
         this.prefix = "Bearer"
-        logger.info("JWT Auth Filter initialized: $this")
     }
 
     /**
@@ -62,8 +62,9 @@ class JwtAuthFilter @Inject constructor(
         val principal = authenticator.authenticate(token)
 
         if (principal.isPresent) {
-            logger.debug(
-                "Authentication successful for user: ${principal.get().name}, userId: ${principal.get().getUserId()}"
+            logger.info(
+                "Authentication successful for user: " +
+                    "${principal.get().name}, userId: ${principal.get().getUserId()}"
             )
             requestContext.securityContext = createSecurityContext(principal.get(), requestContext)
             logger.debug("Security context set with principal: ${principal.get().name}")
